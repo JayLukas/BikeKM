@@ -41,6 +41,13 @@
 - Sonner toasts for feedback.
 - Tested 100% backend + 100% frontend (iteration_1).
 
+## Update (2026-05-03 — Streak + Share)
+- `/api/summary` now returns `current_streak` (consecutive weeks at/above 100 km, walk-back skips incomplete current week, gap weeks break the streak) and `best_streak` (longest run ever).
+- Header shows a flame streak badge when `current_streak > 0`.
+- All-time card now displays Streak / Best Run sub-stats.
+- New `RecapShareModal` opens from the weekly progress card's "SHARE" button — renders a square 1:1 recap card (week total, % of goal, day chart, longest ride, all-time, status badge) and exports as PNG via `html2canvas`. Filename: `km-ledger-{weekKey}.png`.
+- Tested 100% backend + 100% frontend (iteration_2).
+
 ## Personas
 - Solo cyclist tracking weekly mileage discipline.
 
