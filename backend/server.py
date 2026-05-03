@@ -8,7 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone, date as date_cls
+from datetime import datetime, timezone, date as date_cls, timedelta
 
 
 ROOT_DIR = Path(__file__).parent
@@ -66,6 +66,52 @@ class Summary(BaseModel):
     all_time_rides: int
     weeks: List[WeekSummary]
     current_week_key: str
+    current_streak: int
+    best_streak: int
+
+
+WEEKLY_GOAL_KM = 100.0
+
+
+def _shift_week_key(key: str, delta: int) -> str:
+    iso_year, iso_week = int(key.split("-W")[0]), int(key.split("-W")[1])
+    # Build Monday of given ISO week, then shift days
+    jan4 = date_cls(iso_year, 1, 4)
+    week1_monday = jan4 - timedelta(days=jan4.isocalendar()[2] - 1)
+    monday = week1_monday + timedelta(weeks=iso_week - 1, days=delta * 7)
+    return week_key_from_date(monday)
+
+
+def _compute_streaks(week_totals: dict, current_key: str) -> tuple[int, int]:
+    if not week_totals:
+        return 0, 0
+    # current streak — walk back from current_key, including current week only if >= goal
+    current = 0
+    k = current_key
+    # If current week not at goal yet, start from previous week
+    if week_totals.get(k, 0) < WEEKLY_GOAL_KM:
+        k = _shift_week_key(k, -1)
+    while week_totals.get(k, 0) >= WEEKLY_GOAL_KM:
+        current += 1
+        k = _shift_week_key(k, -1)
+
+    # best streak — walk through sorted weeks chronologically
+    sorted_keys = sorted(week_totals.keys())
+    best = 0
+    run = 0
+    prev_key = None
+    for k in sorted_keys:
+        if week_totals[k] < WEEKLY_GOAL_KM:
+            run = 0
+            prev_key = k
+            continue
+        if prev_key is None or _shift_week_key(prev_key, 1) == k:
+            run += 1
+        else:
+            run = 1
+        best = max(best, run)
+        prev_key = k
+    return current, best
 
 
 # ---------- Routes ----------
@@ -132,11 +178,16 @@ async def get_summary():
     all_time_km = round(sum(w.total_km for w in weeks), 2)
     all_time_rides = sum(w.ride_count for w in weeks)
     today = datetime.now(timezone.utc).date()
+    current_key = week_key_from_date(today)
+    week_totals = {w.week_key: w.total_km for w in weeks}
+    current_streak, best_streak = _compute_streaks(week_totals, current_key)
     return Summary(
         all_time_km=all_time_km,
         all_time_rides=all_time_rides,
         weeks=weeks,
-        current_week_key=week_key_from_date(today),
+        current_week_key=current_key,
+        current_streak=current_streak,
+        best_streak=best_streak,
     )
 
 

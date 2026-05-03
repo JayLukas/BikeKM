@@ -102,3 +102,116 @@ def test_delete_ride(client):
 def test_delete_nonexistent(client):
     r = client.delete(f"{API}/rides/nonexistent-id-xyz")
     assert r.status_code == 404
+
+
+# ---- Streak tests ----
+from datetime import date, timedelta
+
+
+def _monday_of_iso_week(year, week):
+    jan4 = date(year, 1, 4)
+    week1_mon = jan4 - timedelta(days=jan4.isocalendar()[2] - 1)
+    return week1_mon + timedelta(weeks=week - 1)
+
+
+def _current_iso():
+    today = datetime.now(timezone.utc).date()
+    y, w, _ = today.isocalendar()
+    return y, w
+
+
+def _seed_week(client, year, week, km, title):
+    mon = _monday_of_iso_week(year, week)
+    r = client.post(f"{API}/rides", json={"title": title, "km": km, "ride_date": mon.isoformat()})
+    assert r.status_code == 200, r.text
+    return r.json()["id"]
+
+
+def _cleanup_test_rides(client):
+    rides = client.get(f"{API}/rides").json()
+    for r in rides:
+        if isinstance(r, dict) and r.get("title", "").startswith("TEST_STREAK"):
+            client.delete(f"{API}/rides/{r['id']}")
+
+
+def test_summary_has_streak_fields(client):
+    r = client.get(f"{API}/summary")
+    assert r.status_code == 200
+    data = r.json()
+    assert "current_streak" in data
+    assert "best_streak" in data
+    assert isinstance(data["current_streak"], int)
+    assert isinstance(data["best_streak"], int)
+    assert data["current_streak"] >= 0
+    assert data["best_streak"] >= 0
+
+
+def test_streak_walk_back_skips_incomplete_current(client):
+    """When current week < goal, walk back; if 3 prev weeks >=100, current_streak==3."""
+    _cleanup_test_rides(client)
+    # delete other test rides for clean baseline
+    rides = client.get(f"{API}/rides").json()
+    pre_existing_ids = [r["id"] for r in rides]
+    y, w = _current_iso()
+    # Seed prev 3 weeks with 100 each, current week with 0 (no rides)
+    ids = []
+    for offset in [1, 2, 3]:
+        py, pw = (y, w - offset) if w - offset >= 1 else (y - 1, 52 + (w - offset))
+        # Better: compute via Monday-shift
+        cur_mon = _monday_of_iso_week(y, w)
+        prev_mon = cur_mon - timedelta(weeks=offset)
+        py2, pw2, _ = prev_mon.isocalendar()
+        ids.append(_seed_week(client, py2, pw2, 100.0, f"TEST_STREAK_w{offset}"))
+    try:
+        data = client.get(f"{API}/summary").json()
+        # current_streak should be >= 3 (walk-back). Could be more if user already had history
+        assert data["current_streak"] >= 3, f"expected >=3, got {data['current_streak']}"
+        assert data["best_streak"] >= 3
+    finally:
+        for rid in ids:
+            client.delete(f"{API}/rides/{rid}")
+
+
+def test_streak_gap_breaks(client):
+    """3 weeks at goal, then gap week (no rides), current week empty → current_streak=0 from walk-back past gap."""
+    _cleanup_test_rides(client)
+    y, w = _current_iso()
+    cur_mon = _monday_of_iso_week(y, w)
+    # gap = 1 week ago (no rides), goal = 2,3,4 weeks ago
+    ids = []
+    # baseline: get current streak before
+    baseline = client.get(f"{API}/summary").json()["current_streak"]
+    for offset in [2, 3, 4]:
+        prev_mon = cur_mon - timedelta(weeks=offset)
+        py2, pw2, _ = prev_mon.isocalendar()
+        ids.append(_seed_week(client, py2, pw2, 100.0, f"TEST_STREAK_gap{offset}"))
+    try:
+        data = client.get(f"{API}/summary").json()
+        # Walk-back: current<100 → go to w-1 (no rides=0<100) → streak=0 from walk-back
+        # But if baseline had already-existing rides in w-1, this could differ. Assert <= baseline + 0 logic:
+        # The key: gap at w-1 must break the chain to those 3 weeks
+        assert data["current_streak"] == 0 or data["current_streak"] == baseline, (
+            f"gap should break streak; got {data['current_streak']} (baseline {baseline})"
+        )
+        # best_streak should still reflect the 3 consecutive
+        assert data["best_streak"] >= 3
+    finally:
+        for rid in ids:
+            client.delete(f"{API}/rides/{rid}")
+
+
+def test_streak_under_goal_does_not_count(client):
+    """Week with <100 km should not count toward streak."""
+    _cleanup_test_rides(client)
+    y, w = _current_iso()
+    cur_mon = _monday_of_iso_week(y, w)
+    prev_mon = cur_mon - timedelta(weeks=1)
+    py, pw, _ = prev_mon.isocalendar()
+    rid = _seed_week(client, py, pw, 50.0, "TEST_STREAK_under")
+    try:
+        data = client.get(f"{API}/summary").json()
+        # 50km prev week shouldn't add to streak walk-back
+        # current_streak from walk-back to 50 → 0
+        assert data["current_streak"] == 0
+    finally:
+        client.delete(f"{API}/rides/{rid}")

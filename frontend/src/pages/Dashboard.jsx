@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Trash2, Bike } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, Bike, Flame, Share2 } from "lucide-react";
 import {
   DAYS,
   weekKey,
@@ -12,6 +12,7 @@ import {
   fmtIsoDate,
 } from "@/lib/week";
 import AddRideForm from "@/components/AddRideForm";
+import RecapShareModal from "@/components/RecapShareModal";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -25,8 +26,11 @@ export default function Dashboard() {
     all_time_rides: 0,
     weeks: [],
     current_week_key: todayWeekKey(),
+    current_streak: 0,
+    best_streak: 0,
   });
   const [loading, setLoading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const fetchRides = useCallback(async (key) => {
     setLoading(true);
@@ -133,6 +137,17 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {summary.current_streak > 0 && (
+              <div
+                className="hidden sm:flex items-center gap-2 px-3 py-2 border border-[#CCFF00]/40 bg-[#CCFF00]/5"
+                data-testid="streak-badge"
+              >
+                <Flame className="w-4 h-4 text-[#CCFF00]" />
+                <span className="font-mono text-xs uppercase tracking-widest text-[#CCFF00] font-bold">
+                  {summary.current_streak}w streak
+                </span>
+              </div>
+            )}
             <button
               onClick={goToday}
               data-testid="goto-today-btn"
@@ -210,6 +225,15 @@ export default function Dashboard() {
                   {WEEKLY_GOAL}
                   <span className="text-zinc-600 text-sm ml-1">KM</span>
                 </div>
+                <button
+                  onClick={() => setShareOpen(true)}
+                  disabled={rides.length === 0}
+                  data-testid="open-share-btn"
+                  className="mt-3 inline-flex items-center gap-2 px-3 py-2 border border-zinc-800 hover:border-[#CCFF00] hover:text-[#CCFF00] disabled:opacity-40 disabled:hover:border-zinc-800 disabled:hover:text-current transition-colors text-[10px] font-bold tracking-[0.2em] uppercase"
+                >
+                  <Share2 className="w-3 h-3" />
+                  Share
+                </button>
               </div>
             </div>
 
@@ -318,6 +342,40 @@ export default function Dashboard() {
                 <span className="text-zinc-400">
                   {summary.weeks.length} weeks
                 </span>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800">
+                <div>
+                  <div className="text-[9px] font-bold tracking-[0.3em] text-zinc-500 uppercase">
+                    Streak
+                  </div>
+                  <div
+                    className="font-display font-black text-2xl mt-1 flex items-baseline gap-1"
+                    data-testid="current-streak"
+                  >
+                    <span
+                      className={
+                        summary.current_streak > 0
+                          ? "text-[#CCFF00]"
+                          : "text-zinc-300"
+                      }
+                    >
+                      {summary.current_streak}
+                    </span>
+                    <span className="text-zinc-600 text-xs">wks</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[9px] font-bold tracking-[0.3em] text-zinc-500 uppercase">
+                    Best Run
+                  </div>
+                  <div
+                    className="font-display font-black text-2xl mt-1 flex items-baseline gap-1"
+                    data-testid="best-streak"
+                  >
+                    <span className="text-white">{summary.best_streak}</span>
+                    <span className="text-zinc-600 text-xs">wks</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -496,6 +554,16 @@ export default function Dashboard() {
           </div>
         </footer>
       </main>
+
+      <RecapShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        weekKey={currentKey}
+        weekTotal={weekTotal}
+        rides={rides}
+        allTimeKm={summary.all_time_km}
+        currentStreak={summary.current_streak}
+      />
     </div>
   );
 }
