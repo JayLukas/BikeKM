@@ -13,6 +13,7 @@ import {
 } from "@/lib/week";
 import AddRideForm from "@/components/AddRideForm";
 import RecapShareModal from "@/components/RecapShareModal";
+import TrendChart from "@/components/TrendChart";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -448,6 +449,32 @@ export default function Dashboard() {
                 })}
               </ul>
             )}
+          </section>
+
+          {/* Trend chart */}
+          <section
+            className="col-span-12 bg-[#121214] border border-zinc-800 p-6 sm:p-8 fade-up delay-4"
+            data-testid="trend-section"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <div className="text-[10px] font-bold tracking-[0.3em] text-zinc-500 uppercase">
+                  Trend
+                </div>
+                <div className="font-display font-black text-2xl uppercase tracking-tight mt-1">
+                  Last 12 Weeks
+                </div>
+              </div>
+              <div className="font-mono text-xs text-zinc-500 uppercase tracking-widest">
+                Goal · {WEEKLY_GOAL} km
+              </div>
+            </div>
+            <TrendChart
+              weeks={summary.weeks}
+              currentWeekKey={summary.current_week_key}
+              selectedWeekKey={currentKey}
+              onSelectWeek={(k) => setCurrentKey(k)}
+            />
           </section>
 
           {/* Ride list */}

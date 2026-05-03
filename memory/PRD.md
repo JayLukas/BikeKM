@@ -41,6 +41,10 @@
 - Sonner toasts for feedback.
 - Tested 100% backend + 100% frontend (iteration_1).
 
+## Update (2026-05-03 — Trend chart)
+- New "Last 12 Weeks" trend chart section using recharts AreaChart — neon-green area with dashed reference line at 100 km goal. Week labels on x-axis, km on y-axis. Tooltip shows week + year + distance. Clicking a data point jumps the rest of the dashboard to that week (sets currentKey).
+- Component: `/app/frontend/src/components/TrendChart.jsx`. Mounted in Dashboard above the rides table.
+
 ## Update (2026-05-03 — Streak + Share)
 - `/api/summary` now returns `current_streak` (consecutive weeks at/above 100 km, walk-back skips incomplete current week, gap weeks break the streak) and `best_streak` (longest run ever).
 - Header shows a flame streak badge when `current_streak > 0`.
