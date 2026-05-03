@@ -308,7 +308,7 @@ export default function Dashboard() {
                 {summary.all_time_km.toFixed(0)}
               </div>
               <div className="font-display text-2xl text-zinc-400 -mt-1">
-                kilometres
+                kilometers
               </div>
               <div className="mt-6 flex items-center gap-4 text-xs uppercase tracking-widest font-bold">
                 <span className="text-[#CCFF00]">
