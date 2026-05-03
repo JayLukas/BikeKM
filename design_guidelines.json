@@ -1,0 +1,90 @@
+{
+  "theme": "dark",
+  "archetype": "The Performance Pro",
+  "typography": {
+    "primaryFont": "Oswald, sans-serif",
+    "secondaryFont": "Inter, sans-serif",
+    "scale": {
+      "heroNumber": "text-7xl sm:text-[12vw] font-black tracking-tighter leading-none",
+      "h1": "text-4xl sm:text-5xl font-extrabold tracking-tight uppercase",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight uppercase",
+      "h3": "text-lg font-bold uppercase tracking-[0.1em]",
+      "body": "text-base font-medium leading-relaxed text-zinc-400",
+      "label": "text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
+    }
+  },
+  "colors": {
+    "background": "#09090B",
+    "surface": "#121214",
+    "surfaceHover": "#18181B",
+    "border": "#27272A",
+    "primaryAccent": "#CCFF00",
+    "primaryAccentHover": "#A3CC00",
+    "text": {
+      "main": "#FFFFFF",
+      "muted": "#A1A1AA"
+    },
+    "danger": "#FF3B30",
+    "success": "#CCFF00"
+  },
+  "layout": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-8 py-12",
+    "grid": {
+      "main": "grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8"
+    },
+    "radius": "rounded-none",
+    "spacing": "Generous outer padding, tightly coupled internal data groupings for a tactical command-center feel."
+  },
+  "components": {
+    "heroProgress": {
+      "description": "Massive typographic display of the current week's km. The progress bar is a thick, unrounded neon line (#CCFF00) over a dark zinc track. Text overlaps or sits flush with the bar.",
+      "classes": "col-span-12 lg:col-span-8 bg-[#121214] border border-zinc-800 p-8 sm:p-12 relative overflow-hidden flex flex-col justify-between min-h-[400px]"
+    },
+    "allTimeTotal": {
+      "description": "Supporting widget for lifetime kms. Darker, quieter background with high contrast white numbers. Includes the dark minimal cyclist background image subtly.",
+      "classes": "col-span-12 lg:col-span-4 bg-zinc-900 border border-zinc-800 p-8 flex flex-col justify-end relative overflow-hidden min-h-[400px]"
+    },
+    "rideList": {
+      "description": "Minimalist tabular layout for weekly rides. No bulky cards. Each ride is a row with a 1px border-bottom (border-zinc-800). Hover state lightens the row slightly. Data points: Title, Day, Distance, Action (Edit/Delete).",
+      "classes": "w-full text-left border-collapse"
+    },
+    "addRideForm": {
+      "description": "Tactical input fields. Square corners (rounded-none). Focus state triggers a vibrant primary accent border. Label text is tiny, uppercase, spaced out.",
+      "inputClasses": "bg-transparent border border-zinc-800 rounded-none focus:border-[#CCFF00] focus:ring-1 focus:ring-[#CCFF00] text-white p-4 h-14 font-medium w-full",
+      "buttonClasses": "bg-[#CCFF00] text-black font-bold uppercase tracking-widest rounded-none h-14 hover:bg-[#A3CC00] transition-colors w-full px-8"
+    },
+    "weekNavigator": {
+      "description": "Massive chevrons (< >) flanking the 'WEEK X' text. Use ghost buttons for the chevrons with a hover state that turns the icon #CCFF00.",
+      "classes": "flex items-center gap-6 text-2xl font-black tracking-widest font-[Oswald] uppercase"
+    }
+  },
+  "motion": {
+    "hover": "transition-colors duration-200 ease-in-out",
+    "progressBar": "transition-[width] duration-1000 ease-out",
+    "pageEntrance": "Staggered fade-up for bento grid items."
+  },
+  "media": {
+    "background_image": {
+      "url": "https://images.unsplash.com/photo-1548422392-679e1fc2eba4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwxfHxjeWNsaXN0JTIwZGFyayUyMG1pbmltYWx8ZW58MHx8fHwxNzc3ODQ4NTI3fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Silhouette of cyclist at night. Use as a subtle, low-opacity (20%) background image inside the 'All Time Total' widget to give it cinematic depth, layered behind the text.",
+      "category": "background"
+    }
+  },
+  "icons": {
+    "library": "lucide-react",
+    "usage": "Minimal use of icons. Rely heavily on typography. Use sharp chevron icons for navigation, and minimalistic trash/edit icons for the list."
+  },
+  "accessibility": {
+    "contrast": "Ensure pure white text on zinc-900 passes APCA contrast. The primary accent (#CCFF00) should be used for thick UI elements or dark text on accent background. Do NOT use #CCFF00 for small thin text on dark background.",
+    "focus": "All interactive elements must use focus:ring-1 focus:ring-[#CCFF00] focus:outline-none."
+  },
+  "instructions_to_main_agent": [
+    "Import fonts: <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700;900&display=swap\" rel=\"stylesheet\">",
+    "Configure Tailwind font family to map 'Oswald' to font-sans or a custom font utility like 'font-display', and 'Inter' to body.",
+    "Do NOT use Space Grotesk. Do NOT use purple/teal gradients. This is a brutalist, sporty aesthetic.",
+    "The progress bar must visually max out at 100km (100% width), but the numeric display should allow exceeding 100.",
+    "Ensure all components use 'rounded-none' for the tactical command-center feel.",
+    "Implement a SQLite database (FastAPI backend) to persist the rides and fetch stats efficiently.",
+    "Ensure the hero number uses 'tracking-tighter' and a massive font size (clamp or vw units) to pack the digits tightly and make it the focal point."
+  ]
+}
