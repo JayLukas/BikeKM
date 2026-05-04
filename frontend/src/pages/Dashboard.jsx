@@ -10,10 +10,10 @@ import {
   todayWeekKey,
   dayOfWeekDateForKey,
   fmtIsoDate,
-} from "@/lib/week";
-import AddRideForm from "@/components/AddRideForm";
-import RecapShareModal from "@/components/RecapShareModal";
-import TrendChart from "@/components/TrendChart";
+} from "./lib/week";
+import AddRideForm from "./components/AddRideForm";
+import RecapShareModal from "./components/RecapShareModal";
+import TrendChart from "./components/TrendChart";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
