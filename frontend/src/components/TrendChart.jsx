@@ -9,7 +9,7 @@ import {
   ReferenceLine,
   CartesianGrid,
 } from "recharts";
-import { weekKey, shiftWeekKey, weekLabel } from "./lib/week";
+import { weekKey, shiftWeekKey, weekLabel } from "../lib/week";
 
 const WEEKLY_GOAL = 100;
 const WEEKS_TO_SHOW = 12;
