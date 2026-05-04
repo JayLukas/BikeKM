@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Trash2, Bike, Flame, Share2 } from "lucide-react";
+
+// CORRECTED PATHS: Using ../ to go up from 'pages' to 'src'
 import {
   DAYS,
   weekKey,
@@ -10,10 +12,11 @@ import {
   todayWeekKey,
   dayOfWeekDateForKey,
   fmtIsoDate,
-} from "./lib/week";
-import AddRideForm from "./components/AddRideForm";
-import RecapShareModal from "./components/RecapShareModal";
-import TrendChart from "./components/TrendChart";
+} from "../lib/week"; 
+
+import AddRideForm from "../components/AddRideForm";
+import RecapShareModal from "../components/RecapShareModal";
+import TrendChart from "../components/TrendChart";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
