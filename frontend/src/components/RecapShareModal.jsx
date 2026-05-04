@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { X, Download, Bike } from "lucide-react";
-import { weekLabel, DAYS } from "@/lib/week";
+import { weekLabel, DAYS } from "./lib/week";
 import { toast } from "sonner";
 
 const WEEKLY_GOAL = 100;
