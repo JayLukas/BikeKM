@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DAYS } from "@/lib/week";
+import { DAYS } from "./lib/week";
 import { toast } from "sonner";
 
 export default function AddRideForm({ onSubmit }) {
